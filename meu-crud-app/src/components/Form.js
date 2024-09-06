@@ -17,16 +17,23 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
   });
 
   const [errors, setErrors] = useState({
-    cpf: false,
-    telefone: false,
+    nomeInvalid: false,
+    telefoneInvalid: false,
+    cpfInvalid: false,
     emailInvalid: false,
     emailMismatch: false,
+    senhaInvalid: false,
     senhaMismatch: false,
-    nomeInvalid: false,
-    confirmEmailTouched: false,
-    confirmSenhaTouched: false,
+  });
+
+  const [touched, setTouched] = useState({
     nomeTouched: false,
+    telefoneTouched: false,
+    cpfTouched: false,
     emailTouched: false,
+    confirmEmailTouched: false,
+    senhaTouched: false,
+    confirmSenhaTouched: false,
   });
 
   const [showSenha, setShowSenha] = useState(false);
@@ -49,117 +56,100 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
-
-    // Atualizar erros com base na mudança de valores
-    if (name === 'cpf') {
-      const cleanedCpf = value.replace(/[^\d]/g, '');
-      setErrors({ ...errors, cpf: cleanedCpf.length !== 11 });
-    }
-
-    if (name === 'telefone') {
-      const cleanedTelefone = value.replace(/[^\d]/g, '');
-      setErrors({ ...errors, telefone: cleanedTelefone.length !== 11 });
-    }
-
-    if (name === 'email' && errors.emailTouched) {
-      setErrors({
-        ...errors,
-        emailInvalid: !value.includes('@'),
-      });
-    }
-
-    if (name === 'confirmEmail' && errors.confirmEmailTouched) {
-      setErrors({
-        ...errors,
-        emailMismatch: form.email !== value,
-      });
-    }
-
-    if (name === 'confirmSenha' && errors.confirmSenhaTouched) {
-      setErrors({
-        ...errors,
-        senhaMismatch: form.senha !== value,
-      });
-    }
   };
 
-  const handleBlurNome = () => {
-    const hasNumbers = /\d/.test(form.nome);
-    setErrors({ ...errors, nomeInvalid: hasNumbers, nomeTouched: true });
+  const handleBlur = (field) => {
+    setTouched({ ...touched, [`${field}Touched`]: true });
+    validateField(field);
   };
 
-  const handleBlurEmail = () => {
-    setErrors({
-      ...errors,
-      emailInvalid: !form.email.includes('@'),
-      emailTouched: true,
+  const validateField = (fieldName) => {
+    const errorsCopy = { ...errors };
+
+    switch (fieldName) {
+      case 'nome':
+        errorsCopy.nomeInvalid = form.nome === '' || /\d/.test(form.nome);
+        break;
+      case 'telefone':
+        errorsCopy.telefoneInvalid = form.telefone.replace(/[^\d]/g, '').length !== 11;
+        break;
+      case 'cpf':
+        errorsCopy.cpfInvalid = form.cpf.replace(/[^\d]/g, '').length !== 11;
+        break;
+      case 'email':
+        errorsCopy.emailInvalid = !form.email.includes('@');
+        break;
+      case 'confirmEmail':
+        errorsCopy.emailMismatch = form.email !== form.confirmEmail;
+        break;
+      case 'senha':
+        errorsCopy.senhaInvalid = form.senha.length < 6;
+        break;
+      case 'confirmSenha':
+        errorsCopy.senhaMismatch = form.senha !== form.confirmSenha;
+        break;
+      default:
+        break;
+    }
+
+    setErrors(errorsCopy);
+  };
+
+  const validateFormOnSubmit = () => {
+    const fields = ['nome', 'telefone', 'cpf', 'email', 'confirmEmail', 'senha', 'confirmSenha'];
+    let hasError = false;
+
+    fields.forEach((field) => {
+      validateField(field);
+      if (errors[`${field}Invalid`] || errors[`${field}Mismatch`]) {
+        hasError = true;
+      }
     });
-  };
 
-  const handleBlurConfirmEmail = () => {
-    setErrors({
-      ...errors,
-      emailMismatch: form.email !== form.confirmEmail,
-      confirmEmailTouched: true,
-    });
-  };
+    // Marcar todos os campos como "touched"
+    const touchedFields = fields.reduce((acc, field) => ({ ...acc, [`${field}Touched`]: true }), {});
+    setTouched(touchedFields);
 
-  const handleBlurConfirmSenha = () => {
-    setErrors({
-      ...errors,
-      senhaMismatch: form.senha !== form.confirmSenha,
-      confirmSenhaTouched: true,
-    });
-  };
-
-  const handleBlurCpf = () => {
-    const cleanedCpf = form.cpf.replace(/[^\d]/g, '');
-    setErrors({
-      ...errors,
-      cpf: cleanedCpf.length !== 11,
-    });
+    return !hasError;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const { nome, telefone, cpf, email, confirmEmail, senha, confirmSenha } = form;
 
-    // Verificação de preenchimento
-    if (!nome || !telefone || !cpf || !email || !confirmEmail || !senha || !confirmSenha) {
-      Swal.fire({ icon: 'error', title: 'Erro', text: 'Todos os campos devem ser preenchidos.' });
-      return;
-    }
+    if (validateFormOnSubmit()) {
+      onSubmit(form);
 
-    // Verificação de erros
-    if (errors.cpf || errors.telefone || errors.emailInvalid || errors.emailMismatch || errors.senhaMismatch || errors.nomeInvalid) {
+      if (!isEditing) {
+        setForm({
+          nome: '',
+          telefone: '',
+          cpf: '',
+          email: '',
+          confirmEmail: '',
+          senha: '',
+          confirmSenha: '',
+        });
+        setErrors({
+          nomeInvalid: false,
+          telefoneInvalid: false,
+          cpfInvalid: false,
+          emailInvalid: false,
+          emailMismatch: false,
+          senhaInvalid: false,
+          senhaMismatch: false,
+        });
+        setTouched({
+          nomeTouched: false,
+          telefoneTouched: false,
+          cpfTouched: false,
+          emailTouched: false,
+          confirmEmailTouched: false,
+          senhaTouched: false,
+          confirmSenhaTouched: false,
+        });
+      }
+    } else {
       Swal.fire({ icon: 'error', title: 'Erro', text: 'Por favor, corrija os erros antes de enviar.' });
-      return;
-    }
-
-    onSubmit(form);
-
-    if (!isEditing) {
-      setForm({
-        nome: '',
-        telefone: '',
-        cpf: '',
-        email: '',
-        confirmEmail: '',
-        senha: '',
-        confirmSenha: '',
-      });
-      setErrors({
-        cpf: false,
-        telefone: false,
-        emailInvalid: false,
-        emailMismatch: false,
-        senhaMismatch: false,
-        nomeInvalid: false,
-        confirmEmailTouched: false,
-        confirmSenhaTouched: false,
-        nomeTouched: false,
-        emailTouched: false,
-      });
     }
   };
 
@@ -174,40 +164,37 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
             required
             value={form.nome}
             onChange={handleChange}
-            onBlur={handleBlurNome}
-            error={errors.nomeInvalid && errors.nomeTouched}
-            helperText={errors.nomeInvalid && errors.nomeTouched ? 'O nome não deve conter números' : ''}
+            onBlur={() => handleBlur('nome')}
+            error={errors.nomeInvalid && touched.nomeTouched}
+            helperText={errors.nomeInvalid && touched.nomeTouched ? 'O nome não deve conter números ou está vazio' : ''}
           />
         </Grid>
 
         <Grid item xs={12}>
-          <InputMask mask="(99) 99999-9999" value={form.telefone} onChange={handleChange} onBlur={() => {
-            const cleanedTelefone = form.telefone.replace(/[^\d]/g, '');
-            setErrors({ ...errors, telefone: cleanedTelefone.length !== 11 });
-          }}>
+          <InputMask mask="(99) 99999-9999" value={form.telefone} onChange={handleChange} onBlur={() => handleBlur('telefone')}>
             {() => (
               <TextField
                 name="telefone"
                 label="Telefone"
                 fullWidth
                 required
-                error={errors.telefone}
-                helperText={errors.telefone ? 'Telefone deve ter 11 dígitos' : ''}
+                error={errors.telefoneInvalid && touched.telefoneTouched}
+                helperText={errors.telefoneInvalid && touched.telefoneTouched ? 'Telefone deve ter 11 dígitos ou está vazio' : ''}
               />
             )}
           </InputMask>
         </Grid>
 
         <Grid item xs={12}>
-          <InputMask mask="999.999.999-99" value={form.cpf} onChange={handleChange} onBlur={handleBlurCpf}>
+          <InputMask mask="999.999.999-99" value={form.cpf} onChange={handleChange} onBlur={() => handleBlur('cpf')}>
             {() => (
               <TextField
                 name="cpf"
                 label="CPF"
                 fullWidth
                 required
-                error={errors.cpf}
-                helperText={errors.cpf ? 'CPF deve ter 11 dígitos' : ''}
+                error={errors.cpfInvalid && touched.cpfTouched}
+                helperText={errors.cpfInvalid && touched.cpfTouched ? 'CPF deve ter 11 dígitos ou está vazio' : ''}
               />
             )}
           </InputMask>
@@ -221,9 +208,9 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
             required
             value={form.email}
             onChange={handleChange}
-            onBlur={handleBlurEmail}
-            error={errors.emailInvalid && errors.emailTouched}
-            helperText={errors.emailInvalid && errors.emailTouched ? 'O email deve conter @' : ''}
+            onBlur={() => handleBlur('email')}
+            error={errors.emailInvalid && touched.emailTouched}
+            helperText={errors.emailInvalid && touched.emailTouched ? 'O email deve conter @ ou está vazio' : ''}
           />
         </Grid>
 
@@ -235,9 +222,9 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
             required
             value={form.confirmEmail}
             onChange={handleChange}
-            onBlur={handleBlurConfirmEmail}
-            error={errors.emailMismatch && errors.confirmEmailTouched}
-            helperText={errors.emailMismatch && errors.confirmEmailTouched ? 'Os emails não são iguais' : ''}
+            onBlur={() => handleBlur('confirmEmail')}
+            error={errors.emailMismatch && touched.confirmEmailTouched}
+            helperText={errors.emailMismatch && touched.confirmEmailTouched ? 'Os emails não são iguais ou está vazio' : ''}
           />
         </Grid>
 
@@ -250,6 +237,9 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
             type={showSenha ? 'text' : 'password'}
             value={form.senha}
             onChange={handleChange}
+            onBlur={() => handleBlur('senha')}
+            error={errors.senhaInvalid && touched.senhaTouched}
+            helperText={errors.senhaInvalid && touched.senhaTouched ? 'Senha deve ter no mínimo 6 caracteres ou está vazio' : ''}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
@@ -271,9 +261,9 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
             type={showConfirmSenha ? 'text' : 'password'}
             value={form.confirmSenha}
             onChange={handleChange}
-            onBlur={handleBlurConfirmSenha}
-            error={errors.senhaMismatch && errors.confirmSenhaTouched}
-            helperText={errors.senhaMismatch && errors.confirmSenhaTouched ? 'As senhas não são iguais' : ''}
+            onBlur={() => handleBlur('confirmSenha')}
+            error={errors.senhaMismatch && touched.confirmSenhaTouched}
+            helperText={errors.senhaMismatch && touched.confirmSenhaTouched ? 'As senhas não são iguais ou está vazio' : ''}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
