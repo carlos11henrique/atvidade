@@ -45,7 +45,7 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
   const [showSenha, setShowSenha] = useState(false);
   const [showConfirmSenha, setShowConfirmSenha] = useState(false);
 
-  // campo para gerar senha
+  // gerar senha
   const generateRandomPassword = (length = 8) => {
     const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
     return Array.from({ length }, () => charset[Math.floor(Math.random() * charset.length)]).join('');
