@@ -1,25 +1,19 @@
-import React, { useState, useEffect } from "react";
-import {
-  TextField,
-  Button,
-  Grid,
-  InputAdornment,
-  IconButton,
-} from "@mui/material";
-import Swal from "sweetalert2";
-import InputMask from "react-input-mask";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import React, { useState, useEffect } from 'react';
+import { TextField, Button, Grid, InputAdornment, IconButton } from '@mui/material';
+import Swal from 'sweetalert2';
+import InputMask from 'react-input-mask';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
   const [form, setForm] = useState({
-    nome: "",
-    telefone: "",
-    cpf: "",
-    email: "",
-    confirmEmail: "",
-    senha: "",
-    confirmSenha: "",
+    nome: '',
+    telefone: '',
+    cpf: '',
+    email: '',
+    confirmEmail: '',
+    senha: '',
+    confirmSenha: '',
   });
 
   const [errors, setErrors] = useState({
@@ -45,32 +39,16 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
   const [showSenha, setShowSenha] = useState(false);
   const [showConfirmSenha, setShowConfirmSenha] = useState(false);
 
-  // gerar senha
-  const generateRandomPassword = (length = 8) => {
-    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
-    return Array.from({ length }, () => charset[Math.floor(Math.random() * charset.length)]).join('');
-  };
-  
-  const handleRandomPassword = () => {
-    const randomPassword = generateRandomPassword();
-    setForm(prevForm => ({
-      ...prevForm,
-      senha: randomPassword,
-      confirmSenha: randomPassword,
-    }));
-  };
-  
-
   useEffect(() => {
     if (isEditing && initialData) {
       setForm({
-        nome: initialData.nome || "",
-        telefone: initialData.telefone || "",
-        cpf: initialData.cpf || "",
-        email: initialData.email || "",
-        confirmEmail: initialData.confirmEmail || "",
-        senha: initialData.senha || "",
-        confirmSenha: initialData.confirmSenha || "",
+        nome: initialData.nome || '',
+        telefone: initialData.telefone || '',
+        cpf: initialData.cpf || '',
+        email: initialData.email || '',
+        confirmEmail: initialData.confirmEmail || '',
+        senha: initialData.senha || '',
+        confirmSenha: initialData.confirmSenha || '',
       });
     }
   }, [initialData, isEditing]);
@@ -89,26 +67,25 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
     const errorsCopy = { ...errors };
 
     switch (fieldName) {
-      case "nome":
-        errorsCopy.nomeInvalid = form.nome === "" || /\d/.test(form.nome);
+      case 'nome':
+        errorsCopy.nomeInvalid = form.nome === '' || /\d/.test(form.nome);
         break;
-      case "telefone":
-        errorsCopy.telefoneInvalid =
-          form.telefone.replace(/[^\d]/g, "").length !== 11;
+      case 'telefone':
+        errorsCopy.telefoneInvalid = form.telefone.replace(/[^\d]/g, '').length !== 11;
         break;
-      case "cpf":
-        errorsCopy.cpfInvalid = form.cpf.replace(/[^\d]/g, "").length !== 11;
+      case 'cpf':
+        errorsCopy.cpfInvalid = form.cpf.replace(/[^\d]/g, '').length !== 11;
         break;
-      case "email":
-        errorsCopy.emailInvalid = !form.email.includes("@");
+      case 'email':
+        errorsCopy.emailInvalid = !form.email.includes('@');
         break;
-      case "confirmEmail":
+      case 'confirmEmail':
         errorsCopy.emailMismatch = form.email !== form.confirmEmail;
         break;
-      case "senha":
+      case 'senha':
         errorsCopy.senhaInvalid = form.senha.length < 6;
         break;
-      case "confirmSenha":
+      case 'confirmSenha':
         errorsCopy.senhaMismatch = form.senha !== form.confirmSenha;
         break;
       default:
@@ -119,15 +96,7 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
   };
 
   const validateFormOnSubmit = () => {
-    const fields = [
-      "nome",
-      "telefone",
-      "cpf",
-      "email",
-      "confirmEmail",
-      "senha",
-      "confirmSenha",
-    ];
+    const fields = ['nome', 'telefone', 'cpf', 'email', 'confirmEmail', 'senha', 'confirmSenha'];
     let hasError = false;
 
     fields.forEach((field) => {
@@ -137,10 +106,8 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
       }
     });
 
-    const touchedFields = fields.reduce(
-      (acc, field) => ({ ...acc, [`${field}Touched`]: true }),
-      {}
-    );
+    // Marcar todos os campos como "touched"
+    const touchedFields = fields.reduce((acc, field) => ({ ...acc, [`${field}Touched`]: true }), {});
     setTouched(touchedFields);
 
     return !hasError;
@@ -154,13 +121,13 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
 
       if (!isEditing) {
         setForm({
-          nome: "",
-          telefone: "",
-          cpf: "",
-          email: "",
-          confirmEmail: "",
-          senha: "",
-          confirmSenha: "",
+          nome: '',
+          telefone: '',
+          cpf: '',
+          email: '',
+          confirmEmail: '',
+          senha: '',
+          confirmSenha: '',
         });
         setErrors({
           nomeInvalid: false,
@@ -182,11 +149,7 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
         });
       }
     } else {
-      Swal.fire({
-        icon: "error",
-        title: "Erro",
-        text: "Por favor, corrija os erros antes de enviar.",
-      });
+      Swal.fire({ icon: 'error', title: 'Erro', text: 'Por favor, corrija os erros antes de enviar.' });
     }
   };
 
@@ -201,23 +164,14 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
             required
             value={form.nome}
             onChange={handleChange}
-            onBlur={() => handleBlur("nome")}
+            onBlur={() => handleBlur('nome')}
             error={errors.nomeInvalid && touched.nomeTouched}
-            helperText={
-              errors.nomeInvalid && touched.nomeTouched
-                ? "O nome não deve conter números ou está vazio"
-                : ""
-            }
+            helperText={errors.nomeInvalid && touched.nomeTouched ? 'O nome não deve conter números ou está vazio' : ''}
           />
         </Grid>
 
         <Grid item xs={12}>
-          <InputMask
-            mask="(99) 99999-9999"
-            value={form.telefone}
-            onChange={handleChange}
-            onBlur={() => handleBlur("telefone")}
-          >
+          <InputMask mask="(99) 99999-9999" value={form.telefone} onChange={handleChange} onBlur={() => handleBlur('telefone')}>
             {() => (
               <TextField
                 name="telefone"
@@ -225,23 +179,14 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
                 fullWidth
                 required
                 error={errors.telefoneInvalid && touched.telefoneTouched}
-                helperText={
-                  errors.telefoneInvalid && touched.telefoneTouched
-                    ? "Telefone deve ter 11 dígitos ou está vazio"
-                    : ""
-                }
+                helperText={errors.telefoneInvalid && touched.telefoneTouched ? 'Telefone deve ter 11 dígitos ou está vazio' : ''}
               />
             )}
           </InputMask>
         </Grid>
 
         <Grid item xs={12}>
-          <InputMask
-            mask="999.999.999-99"
-            value={form.cpf}
-            onChange={handleChange}
-            onBlur={() => handleBlur("cpf")}
-          >
+          <InputMask mask="999.999.999-99" value={form.cpf} onChange={handleChange} onBlur={() => handleBlur('cpf')}>
             {() => (
               <TextField
                 name="cpf"
@@ -249,11 +194,7 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
                 fullWidth
                 required
                 error={errors.cpfInvalid && touched.cpfTouched}
-                helperText={
-                  errors.cpfInvalid && touched.cpfTouched
-                    ? "CPF deve ter 11 dígitos ou está vazio"
-                    : ""
-                }
+                helperText={errors.cpfInvalid && touched.cpfTouched ? 'CPF deve ter 11 dígitos ou está vazio' : ''}
               />
             )}
           </InputMask>
@@ -267,13 +208,9 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
             required
             value={form.email}
             onChange={handleChange}
-            onBlur={() => handleBlur("email")}
+            onBlur={() => handleBlur('email')}
             error={errors.emailInvalid && touched.emailTouched}
-            helperText={
-              errors.emailInvalid && touched.emailTouched
-                ? "O email deve conter @ ou está vazio"
-                : ""
-            }
+            helperText={errors.emailInvalid && touched.emailTouched ? 'O email deve conter @ ou está vazio' : ''}
           />
         </Grid>
 
@@ -285,13 +222,9 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
             required
             value={form.confirmEmail}
             onChange={handleChange}
-            onBlur={() => handleBlur("confirmEmail")}
+            onBlur={() => handleBlur('confirmEmail')}
             error={errors.emailMismatch && touched.confirmEmailTouched}
-            helperText={
-              errors.emailMismatch && touched.confirmEmailTouched
-                ? "Os emails não são iguais ou está vazio"
-                : ""
-            }
+            helperText={errors.emailMismatch && touched.confirmEmailTouched ? 'Os emails não são iguais ou está vazio' : ''}
           />
         </Grid>
 
@@ -301,30 +234,18 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
             label="Senha"
             fullWidth
             required
-            type={showSenha ? "text" : "password"}
+            type={showSenha ? 'text' : 'password'}
             value={form.senha}
             onChange={handleChange}
-            onBlur={() => handleBlur("senha")}
+            onBlur={() => handleBlur('senha')}
             error={errors.senhaInvalid && touched.senhaTouched}
-            helperText={
-              errors.senhaInvalid && touched.senhaTouched
-                ? "Senha deve ter no mínimo 6 caracteres ou está vazio"
-                : ""
-            }
+            helperText={errors.senhaInvalid && touched.senhaTouched ? 'Senha deve ter no mínimo 6 caracteres ou está vazio' : ''}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton onClick={() => setShowSenha(!showSenha)}>
                     {showSenha ? <Visibility /> : <VisibilityOff />}
                   </IconButton>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={handleRandomPassword}
-                    style={{ marginLeft: 10, borderColor: "#a9a9a9a9" }}
-                  >
-                    Gerar
-                  </Button>
                 </InputAdornment>
               ),
             }}
@@ -337,22 +258,16 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
             label="Confirme a Senha"
             fullWidth
             required
-            type={showConfirmSenha ? "text" : "password"}
+            type={showConfirmSenha ? 'text' : 'password'}
             value={form.confirmSenha}
             onChange={handleChange}
-            onBlur={() => handleBlur("confirmSenha")}
+            onBlur={() => handleBlur('confirmSenha')}
             error={errors.senhaMismatch && touched.confirmSenhaTouched}
-            helperText={
-              errors.senhaMismatch && touched.confirmSenhaTouched
-                ? "As senhas não são iguais ou está vazio"
-                : ""
-            }
+            helperText={errors.senhaMismatch && touched.confirmSenhaTouched ? 'As senhas não são iguais ou está vazio' : ''}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowConfirmSenha(!showConfirmSenha)}
-                  >
+                  <IconButton onClick={() => setShowConfirmSenha(!showConfirmSenha)}>
                     {showConfirmSenha ? <Visibility /> : <VisibilityOff />}
                   </IconButton>
                 </InputAdornment>
@@ -363,15 +278,10 @@ const Form = ({ onSubmit, initialData = {}, isEditing = false, onDelete }) => {
 
         <Grid item xs={12}>
           <Button type="submit" variant="contained" color="primary">
-            {isEditing ? "Atualizar" : "Salvar"}
+            {isEditing ? 'Atualizar' : 'Salvar'}
           </Button>
           {isEditing && (
-            <Button
-              variant="outlined"
-              color="secondary"
-              onClick={onDelete}
-              style={{ marginLeft: "10px" }}
-            >
+            <Button variant="outlined" color="secondary" onClick={onDelete} style={{ marginLeft: '10px' }}>
               Excluir
             </Button>
           )}
